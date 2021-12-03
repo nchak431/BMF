@@ -277,7 +277,7 @@ draw_theta <- function(N,d_theta)
   
 }
 
-#-----------------parameters of posterior of sigma & ro----------------
+#-----------------parameters for Sigma----------------
 
 parameter_sigma <- function(k1,k2,n,u,Q,df,alpha,beta,data_mod,w_mod,A21_mat,A22_mat,tao11,tao21,tao22,A_upper,A_lower)
 {
