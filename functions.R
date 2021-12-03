@@ -29,8 +29,8 @@ sigma_inverse <- function(omega,sigma2,k1,k2)
 {
   omega1 <- bdiag(omega)
   omega2 <- diag((1/sigma2))
-  sigma_Inv <- bdiag(omega1,omega2)
-  sigma_mat <- solve(sigma_Inv)
+  sigma_Inv <- as.matrix(bdiag(omega1,omega2))
+  sigma_mat <- as.matrix(solve(sigma_Inv))
   temp <- sigma_Inv[,vec2]
   Final_Sigma_Inv <- temp[vec2,]
   sigma_11 <- Final_Sigma_Inv[1:(3*k1),1:(3*k1)]
@@ -262,6 +262,25 @@ theta_dist_coeff <- function(s1,s2,s3,Final_Sigma_Inv,b1,b2,b3,b4,k1,k2,vec1)
 
 draw_theta <- function(N,d_theta)
 {
+  seq <- c(-4,-3,-2,-1,1,2,3,4)
+  lnp <- numeric()
+  x1 <- seq((1/(2*N)),((2*(N-1))/(2*N)),by=(1/N))
+  for (i in 1:length(x1))
+  {
+    q1 <- (x1[i] ^ seq)
+    lnp[i] <- sum(d_theta*q1)*(-1/2)
+    
+  }
+  if (max(lnp) < -750 | max(lnp) > 700) lnp <- lnp + (700 - max(lnp))
+  theta <- sample(x1,1,prob=exp(lnp))
+  theta
+  
+}
+
+draw_theta_v1 <- function(N,d_theta,x_mat,theta_y)
+{
+  d_theta <- as.vector(lm(theta_y ~ x_mat)$coef )
+  d_theta <- d_theta[-1]
   seq <- c(-4,-3,-2,-1,1,2,3,4)
   lnp <- numeric()
   x1 <- seq((1/(2*N)),((2*(N-1))/(2*N)),by=(1/N))
