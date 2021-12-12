@@ -32,26 +32,26 @@ desired_SNR <- 2
 k <- norm(A, type="F")/norm(desired_SNR*sigma_true, type="F")
 sigma_true <- k * sigma_true
 
-forecast_med_m1 <- array(0, c(p, horizon, repl))
-ferr_med_m1 <- array(0, c(horizon,1, repl))
-ferr_med_low_m1 <- array(0, c(horizon,1, repl))
+forecast_med <- array(0, c(p, horizon, repl))
+ferr_med <- array(0, c(horizon,1, repl))
+ferr_med_low <- array(0, c(horizon,1, repl))
 
   r=1
   W_sim  <- array(0, c(p, p, (iteration-burn)))
   theta_sim  <- array(0, c(1, 1, (iteration-burn)))
-  sigma_sim_m1 <- array(0, c(p, p, (iteration-burn)))
-  b1_sim_m1 <- array(0, c((k1*k1), 1, (iteration-burn)))
-  b2_sim_m1 <- array(0, c((k1*k2), 1, (iteration-burn)))
-  b3_sim_m1 <- array(0, c((k1*k2), 1, (iteration-burn)))
-  b4_sim_m1 <- array(0, c((k2*k2), 1, (iteration-burn)))
+  sigma_sim <- array(0, c(p, p, (iteration-burn)))
+  b1_sim <- array(0, c((k1*k1), 1, (iteration-burn)))
+  b2_sim <- array(0, c((k1*k2), 1, (iteration-burn)))
+  b3_sim <- array(0, c((k1*k2), 1, (iteration-burn)))
+  b4_sim <- array(0, c((k2*k2), 1, (iteration-burn)))
   
   w_final <- matrix(0,p,p)
   theta_final <- 0
-  sigma_final_m1 <- matrix(0,p,p)
-  b1_final_m1 <- rep(0,(k1*k1))
-  b2_final_m1 <- rep(0,(k1*k2))
-  b3_final_m1 <- rep(0,(k1*k2))
-  b4_final_m1 <- rep(0,(k2*k2))
+  sigma_final <- matrix(0,p,p)
+  b1_final <- rep(0,(k1*k1))
+  b2_final <- rep(0,(k1*k2))
+  b3_final <- rep(0,(k1*k2))
+  b4_final <- rep(0,(k2*k2))
 
   count <- 0
   #===============Generate data================
@@ -76,8 +76,8 @@ ferr_med_low_m1 <- array(0, c(horizon,1, repl))
   data <-y_full[,1:(nobs + 1)]
   data_mod <-as.matrix(y_mod_full)[,1:(nobs + 1)]
   data_t <- t(data)
-  forecast_true_m1 <- y_full[,(nobs + 1 + 1):(nobs + 1 + horizon)]
-  forecast_true_m1_rep[,,r] <-forecast_true_m1
+  forecast_true <- y_full[,(nobs + 1 + 1):(nobs + 1 + horizon)]
+  forecast_true_rep[,,r] <-forecast_true
     
   X <- data_t[1:nobs,]
   Y <- data_t[2:(nobs + 1),]
@@ -110,19 +110,19 @@ ferr_med_low_m1 <- array(0, c(horizon,1, repl))
   w <- theta_func[[8]]
   w_mod <- theta_func[[9]]
   
-  S_mat_m1 <- S_matrix(data,nobs,k1,k2)
-  s1 <-S_mat_m1[[1]]
-  s2 <- S_mat_m1[[2]]
-  s3 <- S_mat_m1[[3]]
-  s11<- S_mat_m1[[4]]
-  s12 <- S_mat_m1[[5]]
-  s21 <- S_mat_m1[[6]]
-  s22 <- S_mat_m1[[7]]
-  ss11<- S_mat_m1[[8]]
-  ss12<- S_mat_m1[[9]]
-  ss21 <- S_mat_m1[[10]]
-  ss22 <- S_mat_m1[[11]]
-  s <- S_mat_m1[[12]]
+  S_mat <- S_matrix(data,nobs,k1,k2)
+  s1 <-S_mat[[1]]
+  s2 <- S_mat[[2]]
+  s3 <- S_mat[[3]]
+  s11<- S_mat[[4]]
+  s12 <- S_mat[[5]]
+  s21 <- S_mat[[6]]
+  s22 <- S_mat[[7]]
+  ss11<- S_mat[[8]]
+  ss12<- S_mat[[9]]
+  ss21 <- S_mat[[10]]
+  ss22 <- S_mat[[11]]
+  s <- S_mat[[12]]
   #============Initial values of Sigma===================
   omega <-list()
   sigma_adj <- numeric()
@@ -141,34 +141,34 @@ ferr_med_low_m1 <- array(0, c(horizon,1, repl))
   Q <- 0.3*diag(3)
   df <- 1
   
-  sigma_inv_func_m1 <- sigma_inverse(omega,sigma2,k1,k2)
-  sigma_11 <- sigma_inv_func_m1[[1]]
-  sigma_22 <- sigma_inv_func_m1[[2]]
-  sigma_inv<- sigma_inv_func_m1[[3]]
-  Final_Sigma_Inv <- sigma_inv_func_m1[[4]]
-  sigma_mat <- sigma_inv_func_m1[[5]]
+  sigma_inv_func <- sigma_inverse(omega,sigma2,k1,k2)
+  sigma_11 <- sigma_inv_func[[1]]
+  sigma_22 <- sigma_inv_func[[2]]
+  sigma_inv<- sigma_inv_func[[3]]
+  Final_Sigma_Inv <- sigma_inv_func[[4]]
+  sigma_mat <- sigma_inv_func[[5]]
   
-  A11_func_m1 <- para_A11(theta_mat,s,sigma_inv,sigma_11,s11,ss11,s12,w12)
-  gamma_A11 <- A11_func_m1[[1]]
-  d_A11 <- A11_func_m1[[2]]
+  A11_func <- para_A11(theta_mat,s,sigma_inv,sigma_11,s11,ss11,s12,w12)
+  gamma_A11 <- A11_func[[1]]
+  d_A11 <- A11_func[[2]]
   q11 <- 0
   tao11 <- 0.5
   
-  A12_func_m1 <- para_A12(k1,k2,u,sigma_inv,sigma_11,s12,ss12,s22,w11)
-  gamma_A12 <- A12_func_m1[[1]]
-  d_A12 <- A12_func_m1[[2]]
+  A12_func <- para_A12(k1,k2,u,sigma_inv,sigma_11,s12,ss12,s22,w11)
+  gamma_A12 <- A12_func[[1]]
+  d_A12 <- A12_func[[2]]
   q12 <- 0.96
   tao12 <- 0.5
   
-  A21_func_m1 <- para_A21(k1,k2,v,sigma_22,s,s11,ss21,s12,w22)
-  gamma_A21 <- A21_func_m1[[1]]
-  d_A21 <- A21_func_m1[[2]]
+  A21_func <- para_A21(k1,k2,v,sigma_22,s,s11,ss21,s12,w22)
+  gamma_A21 <- A21_func[[1]]
+  d_A21 <- A21_func[[2]]
   q21 <- 0.96
   tao21 <- 0.5
   
-  A22_func_m1 <- para_A22(v,sigma_22,s22,ss22,s12,w21)
-  gamma_A22 <- A22_func_m1[[1]]
-  d_A22 <- A22_func_m1[[2]]
+  A22_func <- para_A22(v,sigma_22,s22,ss22,s12,w21)
+  gamma_A22 <- A22_func[[1]]
+  d_A22 <- A22_func[[2]]
   q22 <- 0.7
   tao22 <- 0.5
   
@@ -244,68 +244,68 @@ ferr_med_low_m1 <- array(0, c(horizon,1, repl))
     w22 <- theta_func[[7]]
     w <- theta_func[[8]]
     w_mod <- theta_func[[9]]
-    A11_mat_m1 <- matrix(b1,nrow=k1,ncol=k1,byrow=F)
-    A12_mat_m1 <- matrix(b2,nrow=k1,ncol=k2,byrow=F)
-    A_upper_m1 <- cbind(A11_mat_m1,A12_mat_m1)
-    A21_mat_m1 <- matrix(b3,nrow=k2,ncol=k1,byrow=F)
-    A22_mat_m1 <- matrix(b4,nrow=k2,ncol=k2,byrow=F)
-    A_lower_m1 <- cbind(A21_mat_m1,A22_mat_m1)
-    sigma_func_m1 <- parameter_sigma (k1,k2,nobs,u,Q,df,alpha,beta,data_mod,w_mod,A21_mat_m1,A22_mat_m1,tao11,tao21,tao22,A_upper_m1,A_lower_m1)
-    omega <- sigma_func_m1[[1]]
-    sigma2 <- sigma_func_m1[[2]]
-    sigma_adj <- sigma_func_m1[[3]]
-    sigma_inv_func_m1 <- sigma_inverse(omega,sigma2,k1,k2)
-    sigma_11 <- sigma_inv_func_m1[[1]]
-    sigma_22 <- sigma_inv_func_m1[[2]]
-    sigma_inv<- sigma_inv_func_m1[[3]]
-    Final_Sigma_Inv <- sigma_inv_func_m1[[4]]
-    sigma_mat <- sigma_inv_func_m1[[5]]
+    A11_mat <- matrix(b1,nrow=k1,ncol=k1,byrow=F)
+    A12_mat <- matrix(b2,nrow=k1,ncol=k2,byrow=F)
+    A_upper <- cbind(A11_mat,A12_mat)
+    A21_mat <- matrix(b3,nrow=k2,ncol=k1,byrow=F)
+    A22_mat <- matrix(b4,nrow=k2,ncol=k2,byrow=F)
+    A_lower <- cbind(A21_mat,A22_mat)
+    sigma_func <- parameter_sigma (k1,k2,nobs,u,Q,df,alpha,beta,data_mod,w_mod,A21_mat,A22_mat,tao11,tao21,tao22,A_upper,A_lower)
+    omega <- sigma_func[[1]]
+    sigma2 <- sigma_func[[2]]
+    sigma_adj <- sigma_func[[3]]
+    sigma_inv_func <- sigma_inverse(omega,sigma2,k1,k2)
+    sigma_11 <- sigma_inv_func[[1]]
+    sigma_22 <- sigma_inv_func[[2]]
+    sigma_inv<- sigma_inv_func[[3]]
+    Final_Sigma_Inv <- sigma_inv_func[[4]]
+    sigma_mat <- sigma_inv_func[[5]]
     
-    A11_func_m1 <- para_A11(theta_mat,s,sigma_inv,sigma_11,s11,ss11,s12,w12)
-    gamma_A11 <- A11_func_m1[[1]]
-    d_A11 <- A11_func_m1[[2]]
+    A11_func <- para_A11(theta_mat,s,sigma_inv,sigma_11,s11,ss11,s12,w12)
+    gamma_A11 <- A11_func[[1]]
+    d_A11 <- A11_func[[2]]
     
-    A12_func_m1 <- para_A12(k1,k2,u,sigma_inv,sigma_11,s12,ss12,s22,w11)
-    gamma_A12 <- A12_func_m1[[1]]
-    d_A12 <- A12_func_m1[[2]]
+    A12_func <- para_A12(k1,k2,u,sigma_inv,sigma_11,s12,ss12,s22,w11)
+    gamma_A12 <- A12_func[[1]]
+    d_A12 <- A12_func[[2]]
     
-    A21_func_m1 <- para_A21(k1,k2,v,sigma_22,s,s11,ss21,s12,w22)
-    gamma_A21 <- A21_func_m1[[1]]
-    d_A21 <- A21_func_m1[[2]]
+    A21_func <- para_A21(k1,k2,v,sigma_22,s,s11,ss21,s12,w22)
+    gamma_A21 <- A21_func[[1]]
+    d_A21 <- A21_func[[2]]
     
-    A22_func_m1 <- para_A22(v,sigma_22,s22,ss22,s12,w21)
-    gamma_A22 <- A22_func_m1[[1]]
-    d_A22 <- A22_func_m1[[2]]
+    A22_func <- para_A22(v,sigma_22,s22,ss22,s12,w21)
+    gamma_A22 <- A22_func[[1]]
+    d_A22 <- A22_func[[2]]
     
   if (i > burn) 
     {
       count <- count + 1
       W_sim [, , count] <- w
       theta_sim [ , , count] <- theta
-      sigma_sim_m1 [ , , count] <- as.matrix(sigma_mat)
-      b1_sim_m1 [ , , count] <- b1
-      b2_sim_m1 [ , , count] <- b2
-      b3_sim_m1 [ , , count] <- b3
-      b4_sim_m1 [ , , count] <- b4
+      sigma_sim [ , , count] <- as.matrix(sigma_mat)
+      b1_sim [ , , count] <- b1
+      b2_sim [ , , count] <- b2
+      b3_sim [ , , count] <- b3
+      b4_sim [ , , count] <- b4
       
       w_final <- w_final + w
       theta_final <- theta_final + theta
-      sigma_final_m1 <- sigma_final_m1 + sigma_mat
-      b1_final_m1 <- b1_final_m1 + b1
-      b2_final_m1 <- b2_final_m1 + b2
-      b3_final_m1 <- b3_final_m1 + b3
-      b4_final_m1 <- b4_final_m1 + b4
+      sigma_final <- sigma_final + sigma_mat
+      b1_final <- b1_final + b1
+      b2_final <- b2_final + b2
+      b3_final <- b3_final + b3
+      b4_final <- b4_final + b4
     }
     
   }
   
   w_final = w_final/count
   theta_est = theta_final/count
-  sigma_final_m1 = sigma_final_m1/count
-  b1_final_m1 = b1_final_m1/count
-  b2_final_m1 = b2_final_m1/count
-  b3_final_m1 = b3_final_m1/count
-  b4_final_m1 = b4_final_m1/count
+  sigma_final = sigma_final/count
+  b1_final = b1_final/count
+  b2_final = b2_final/count
+  b3_final = b3_final/count
+  b4_final = b4_final/count
   
   zero <- function(x)
   {
@@ -319,10 +319,10 @@ ferr_med_low_m1 <- array(0, c(horizon,1, repl))
     p
   }
   
-  corrected_b1_m1 <- apply(b1_sim_m1[ , , ], 1,  FUN=function(x) zero(x) )
-  corrected_b2_m1 <- apply(b2_sim_m1[ , , ], 1,  FUN=function(x) zero(x) )
-  corrected_b3_m1 <- apply(b3_sim_m1[ , , ], 1,  FUN=function(x) zero(x) )
-  corrected_b4_m1 <- apply(b4_sim_m1[ , , ], 1,  FUN=function(x) zero(x) )
+  corrected_b1 <- apply(b1_sim[ , , ], 1,  FUN=function(x) zero(x) )
+  corrected_b2 <- apply(b2_sim[ , , ], 1,  FUN=function(x) zero(x) )
+  corrected_b3 <- apply(b3_sim[ , , ], 1,  FUN=function(x) zero(x) )
+  corrected_b4 <- apply(b4_sim[ , , ], 1,  FUN=function(x) zero(x) )
   
 w_est <- apply(W_sim, c(1,2), mean)
 
@@ -361,12 +361,12 @@ crps_mat <- matrix(0,nrow = ((3*k1)+k2),ncol=horizon)
 logs_mat <- matrix(0,nrow = ((3*k1)+k2),ncol=horizon)
 for ( i in 1:horizon)
 {
-  crps_mat[,i] <- crps(y = forecast_true_m1[,i], family = "normal", mean = mean[,i], sd = sd[,i])
-  logs_mat[,i] <- logs(y = forecast_true_m1[,i], family = "normal", mean = mean[,i], sd = sd[,i])
+  crps_mat[,i] <- crps(y = forecast_true[,i], family = "normal", mean = mean[,i], sd = sd[,i])
+  logs_mat[,i] <- logs(y = forecast_true[,i], family = "normal", mean = mean[,i], sd = sd[,i])
 }
 
 #=========================================
-  forecast_m1 <- forecast_cred(pred_sim,forecast_true_m1,horizon)
-  forecast_med_m1[,,r] <- forecast_m1$forecast_med
-  ferr_med_m1[,,r] <- forecast_m1$ferr_med
-  ferr_med_low_m1[,,r] <- forecast_m1$ferr_med_low # forecast error for quarterly variables
+  forecast <- forecast_cred(pred_sim,forecast_true,horizon)
+  forecast_med[,,r] <- forecast$forecast_med
+  ferr_med[,,r] <- forecast$ferr_med
+  ferr_med_low[,,r] <- forecast$ferr_med_low # forecast error for quarterly variables
