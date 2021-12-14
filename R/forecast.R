@@ -27,6 +27,14 @@ p <- (3*k1) + k2
 p1 <- (k1+k2)
 #===========Generate VAR transition matrix================
 A <- Gen_A(k1,k2,theta_true,lag, spec_rad, edge_density)[[1]]
+A_block_one <- Gen_A(k1,k2,theta_true,lag, spec_rad, edge_density)[[2]]
+A11_true <- (A_block_one[1:k1,1:k1]/(theta_true^2))
+A12_true <- (A_block_one[1:k1,(k1+1):(k1+k2)]/(theta_true^2))
+A21_true <- (A_block_one[(k1+1):(k1+k2),1:k1])
+A22_true <- (A_block_one[(k1+1):(k1+k2),(k1+1):(k1+k2)])
+A1 <- cbind(A11_true, A12_true)
+A2 <- cbind(A21_true, A22_true)
+A_true <- rbind(A1,A2) # true A
 sigma_true <- Gen_Sigma (k1,k2)[[1]]
 desired_SNR <- 2
 k <- norm(A, type="F")/norm(desired_SNR*sigma_true, type="F")
@@ -305,9 +313,17 @@ ferr_med_low <- array(0, c(horizon,1, repl))
   b1_final = b1_final/count
   b2_final = b2_final/count
   b3_final = b3_final/count
-  b4_final = b4_final/count
-  
-  zero <- function(x)
+  b4_final = b4_final/count    
+w_est <- apply(W_sim, c(1,2), mean)
+sigma_est=apply(sigma_sim, c(1,2), mean)
+
+#=========================================
+true_b1 <- vec(A_block_one[1:k1,1:k1]/(theta_true^2))
+true_b2 <- vec(A_block_one[1:k1,(k1+1):(k1+k2)]/(theta_true^2))
+true_b3 <- vec(A_block_one[(k1+1):(k1+k2),1:k1])
+true_b4 <- vec(A_block_one[(k1+1):(k1+k2),(k1+1):(k1+k2)])
+
+zero <- function(x)
   {
     z <- length(which(x==0))  
     if (z > (length(x)/2))
@@ -323,9 +339,53 @@ ferr_med_low <- array(0, c(horizon,1, repl))
   corrected_b2 <- apply(b2_sim[ , , ], 1,  FUN=function(x) zero(x) )
   corrected_b3 <- apply(b3_sim[ , , ], 1,  FUN=function(x) zero(x) )
   corrected_b4 <- apply(b4_sim[ , , ], 1,  FUN=function(x) zero(x) )
-  
-w_est <- apply(W_sim, c(1,2), mean)
+A11_est <- matrix(corrected_b1,nrow=k1,ncol=k1,byrow=F)
+A12_est <- matrix(corrected_b2,nrow=k1,ncol=k2,byrow=F)
+A21_est <- matrix(corrected_b3,nrow=k2,ncol=k1,byrow=F)
+A22_est <- matrix(corrected_b4,nrow=k2,ncol=k2,byrow=F)
+A_upper <- cbind(A11_est, A12_est)
+A_lower <- cbind(A21_est, A22_est)
+A_est <- rbind(A_upper, A_lower)
+#====================model selection performance=====================
+sensitivity_b1 <- metric(true_b1,corrected_b1)[[1]]
+specificity_b1 <- metric(true_b1,corrected_b1)[[2]]
+sensitivity_b2 <- metric(true_b2,corrected_b2)[[1]]
+specificity_b2 <- metric(true_b2,corrected_b2)[[2]]
+sensitivity_b3 <- metric(true_b3,corrected_b3)[[1]]
+specificity_b3 <- metric(true_b3,corrected_b3)[[2]]
+sensitivity_b4 <- metric(true_b4,corrected_b4)[[1]]
+specificity_b4 <- metric(true_b4,corrected_b4)[[2]]
+sensitivity_A_mat <- metric_A(A_block_one,A_est)[[1]]
+specificity_A_mat <- metric_A(A_block_one,A_est)[[2]]
+#==================Relative error================
+diff_A <- A_est - A_true
+rel_error_A <- norm(diff_A,'f')/norm(A_true,'f')
 
+diff_A11 <- A11_est - A11_true
+rel_error_A11 <- norm(diff_A11,'f')/norm(A11_true,'f')
+
+diff_A12 <- A12_est - A12_true
+rel_error_A12 <- norm(diff_A12,'f')/norm(A12_true,'f')
+
+diff_A21 <- A21_est - A21_true
+rel_error_A21 <- norm(diff_A21,'f')/norm(A21_true,'f')
+
+diff_A22 <- A22_est - A22_true
+rel_error_A22 <- norm(diff_A22,'f')/norm(A22_true,'f')
+#Rel error of W
+w1 <- A[vec,]
+w_true <-w1[,vec] 
+diff_w <- w_est-w_true
+rel_error_w <- norm(diff_w,'f')/norm(w_true,'f')
+#Rel error of sigma
+temp1 <- sigma_true[vec,]
+temp2 <- temp1[,vec]
+temp3 <- temp2[vec1,]
+true_sigma1 <- as.matrix(temp3[,vec1])
+
+diff_sigma <- sigma_est - true_sigma1
+rel_error_sigma <- norm(diff_sigma,'f')/norm(true_sigma1,'f')
+#========================================
 pred <- matrix(0,nrow=((3*k1)+k2),ncol=nobs+1)
 err <- matrix(0,nrow=((3*k1)+k2),ncol=nobs+1)
 for ( t in 2:(nobs+1))
@@ -334,7 +394,7 @@ for ( t in 2:(nobs+1))
   err[,t] <- y_full[,t] - pred[,t] 
   
 }
-#Estimating error-covariance
+#Estimating error-covariance using graphical lasso
   lasso <- CVglasso(X = t(err), S = NULL, nlam = 10, lam.min.ratio = 0.01,
                     lam = NULL, diagonal = FALSE, path = FALSE, tol = 1e-04,
                     maxit = 10000, adjmaxit = NULL, K = 5, crit.cv = c("loglik", "AIC",
@@ -365,7 +425,7 @@ for ( i in 1:horizon)
   logs_mat[,i] <- logs(y = forecast_true[,i], family = "normal", mean = mean[,i], sd = sd[,i])
 }
 
-#=========================================
+#=======================forecast errors==========================
   forecast <- forecast_cred(pred_sim,forecast_true,horizon)
   forecast_med[,,r] <- forecast$forecast_med
   ferr_med[,,r] <- forecast$ferr_med
