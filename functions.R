@@ -378,4 +378,48 @@ forecast_cred <- function(sim,true,est,horizon)
   colnames(cred)=c("true","mean","2.5%","25%","50%","75%","97.5%")
   return(list(forecast_med = sim_med,cred_forecast=cred,ferr_med=err,ferr_med_low=err_low ))
 }
+metric<- function(true,est)
+{
+  a <- true*est
+  TP <- length(a) - (length(which(a==0)))
+  true_nonzero <- (length(true) - (length(which(true==0))))
+  FN <- true_nonzero - TP
+  b <- true + est
+  FP <- (length(b) - (length(which(b==0))))- true_nonzero
+  TN <- (length(which(true==0))) - FP
+  d <- (TP* TN) - (FP * FN)
+  c1 <- (TP + FP)
+  c2 <- (TP + FN)
+  c3 <- (TN + FP)
+  c4 <- (TN + FN)
+  SN <- TP/c2
+  SP <- TN/c3
+  data <- list(SN,SP)
+  data
+}
+
+
+metric_A <- function(A_block_one,A_est)
+{
+  m <- hadamard.prod(A_block_one,A_est)
+  m1 <- colSums(m!=0)
+  TP_A_mat <- sum(m1)
+  m2 <- colSums(A_block_one!=0)
+  true_nonzero <- sum(m2)
+  FN_A_mat <- true_nonzero - TP_A_mat
+  n <- A_block_one + A_est
+  n1 <- colSums(n!=0)
+  FP_A_mat <- sum(n1)- true_nonzero
+  true_zero <- (p1^2) - true_nonzero
+  TN_A_mat <- true_zero - FP_A_mat
+  d <- (TP_A_mat* TN_A_mat) - (FP_A_mat * FN_A_mat)
+  c1 <- (TP_A_mat + FP_A_mat)
+  c2 <- (TP_A_mat + FN_A_mat)
+  c3 <- (TN_A_mat + FP_A_mat)
+  c4 <- (TN_A_mat + FN_A_mat)
+  SN <- TP_A_mat/c2
+  SP <- TN_A_mat/c3
+  data <- list(SN,SP)
+  data
+}
 
