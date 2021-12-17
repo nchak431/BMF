@@ -1,4 +1,4 @@
-source("data_gen.R")
+source("mat_gen_BMF.R")
 
 library(matrixcalc)
 library(clusterGeneration)
