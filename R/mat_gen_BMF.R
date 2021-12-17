@@ -1,5 +1,5 @@
 #####################
-### GENERATES VAR TRANSITION MATRIX
+### GENERATES VAR TRANSITION MATRIX for BMF
 #####################
 library(MASS)
 library(Matrix)
