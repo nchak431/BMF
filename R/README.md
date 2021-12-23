@@ -11,7 +11,7 @@ Generates VAR transition matrix using function 'Gen_A' and generates true error 
 
 **data_gen_neutral_2.R**
 
-Generates VAR transition matrix using function 'Gen_A' and generates true error covariance matrix using function 'Gen_Sigma' for the model by Schorfheide and Song as in the paper 'Real-Time Forecasting With a Mixed-Frequency VAR'and the reality of mixed frequency data' and then generates data from the model.
+Generates VAR transition matrix using function 'Gen_A' and generates true error covariance matrix using function 'Gen_Sigma' for the model by Schorfheide and Song as in the paper 'Real-Time Forecasting With a Mixed-Frequency VAR' and then generates data from the model.
 
 **forecast_BMF.R**
 
