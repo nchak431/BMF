@@ -85,7 +85,6 @@ ferr_med_low <- array(0, c(horizon,1, repl))
   data_mod <-as.matrix(y_mod_full)[,1:(nobs + 1)]
   data_t <- t(data)
   forecast_true <- y_full[,(nobs + 1 + 1):(nobs + 1 + horizon)]
-  forecast_true_rep[,,r] <-forecast_true
     
   X <- data_t[1:nobs,]
   Y <- data_t[2:(nobs + 1),]
