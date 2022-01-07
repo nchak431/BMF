@@ -355,7 +355,7 @@ parameter_sigma <- function(k1,k2,n,u,Q,df,alpha,beta,data_mod,w_mod,A21_mat,A22
   
 }
 
-forecast_cred <- function(sim,true,est,horizon)
+forecast_cred <- function(sim,true,horizon)
 {
   sim_q11 <- apply(sim,c(1,2),quantile,probs=0.025)
   sim_q1 <- apply(sim,c(1,2),quantile,probs=0.25)
@@ -373,11 +373,9 @@ forecast_cred <- function(sim,true,est,horizon)
   {
     err_low[j] <- sum((true[,j][((3*k1)+1):((3*k1)+k2)]-sim_med[,j][((3*k1)+1):((3*k1)+k2)])^2)/k2
   }  
-  true <- vec(true);est <- vec(est)
-  cred <- cbind(true,est,q11,q1,med,q3,q33)
-  colnames(cred)=c("true","mean","2.5%","25%","50%","75%","97.5%")
-  return(list(forecast_med = sim_med,cred_forecast=cred,ferr_med=err,ferr_med_low=err_low ))
+  return(list(forecast_med = sim_med,ferr_med=err,ferr_med_low=err_low ))
 }
+
 metric<- function(true,est)
 {
   a <- true*est
