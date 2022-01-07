@@ -191,7 +191,7 @@ ferr_med_low <- array(0, c(horizon,1, repl))
         pr <- q11/(q11+(((1-q11)*exp(a1^2/(2*a2)))/(tao11*(sqrt(a2*(sigma_adj[j-((j1-1)*k1)]))))))
         x1 <- -(a1/a2)
         x2 <- sqrt(1/a2)
-        b1[j] <- draw_A11(x1,x2,pr,j)
+        b1[j] <- draw(x1,x2,pr,j)
         
       }
     }
@@ -205,7 +205,7 @@ ferr_med_low <- array(0, c(horizon,1, repl))
         pr <- q12/(q12+(((1-q12)*exp(a1^2/(2*a2)))/(tao12*(sqrt(a2*(sigma_adj[l-((l1-1)*k1)]))))))
         x1 <- -(a1/a2)
         x2 <- sqrt(1/a2)
-        b2[l] <- draw_A12(x1,x2,pr,l)
+        b2[l] <- draw(x1,x2,pr,l)
         
       }
     }
@@ -219,7 +219,7 @@ ferr_med_low <- array(0, c(horizon,1, repl))
         pr <- q21/(q21+(((1-q21)*exp(a1^2/(2*a2)))/(tao21*(sqrt(a2*(sigma2[m-((m1-1)*k2)]))))))
         x1 <- -(a1/a2)
         x2 <- sqrt(1/a2)
-        b3[m] <- draw_A21(x1,x2,pr,m)
+        b3[m] <- draw(x1,x2,pr,m)
         
       }
     }
@@ -234,7 +234,7 @@ ferr_med_low <- array(0, c(horizon,1, repl))
         pr <- q22/(q22+(((1-q22)*exp(a1^2/(2*a2)))/(tao22*(sqrt(a2*(sigma2[n-((n1-1)*k2)]))))))
         x1 <- -(a1/a2)
         x2 <- sqrt(1/a2)
-        b4[n] <- draw_A22(x1,x2,pr,n)
+        b4[n] <- draw(x1,x2,pr,n)
         
       }
     }
