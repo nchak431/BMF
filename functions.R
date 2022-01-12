@@ -421,3 +421,194 @@ metric_A <- function(A_block_one,A_est)
   data
 }
 
+# For implemenetation of `MFBVAR'
+mfb_rearr <- function(k1,k2,horizon)
+{
+  arr <- NULL   
+  for(i in 1:horizon)
+  {
+    m1 <- NULL;m2 <- NULL;m3 <- NULL;m4 <- NULL
+    for(j in 1:k1)
+    {
+      m <- ((j-1)*(3*horizon))+(3*i)
+      m1 <- c(m1,m)  
+      m <- ((j-1)*(3*horizon))+((3*i)-2)
+      m2 <- c(m2,m)
+      m <- ((j-1)*(3*horizon))+((3*i)-1)
+      m3 <- c(m3,m)
+    }  
+    for(j in 1:k2)
+    {
+      m <- (3*horizon*k1) + ((j-1)*(3*horizon))+(3*i)
+      m4 <- c(m4,m)  
+      
+    }  
+     
+    arr <- c(arr,m1,m2,m3,m4) 
+    arr
+  }
+  return(arr=arr)
+}
+
+
+
+mfb <- function(data_mod,k1,k2,horizon,arr,true)
+{
+  mf_list <- list() 
+  for(i in 1:(k1+k2))  
+  {
+    if(i <= k1) {
+      index <- c((3*i)-2,(3*i)-1,(3*i))  
+      sub <- data_mod[index,]
+      mf_list[[i]] <- vec(sub)  
+    }else {
+      sub <- matrix(data_mod[((2*k1)+i),],ncol=1)
+      mf_list[[i]] <- vec(sub)      
+    } 
+  }
+  alfred_to_ts <- function(x,freq){
+    ts(x[,1],frequency=freq)
+  }
+  mf <- mapply(alfred_to_ts,x=mf_list,freq=c(rep(12,k1),rep(4,k2)))
+  quantile1 <- numeric()
+  quantile2 <- numeric()
+  for(i in 1:(k1+k2))
+  {
+    quantile1[i] <- quantile(mf[[i]], probs = 0.025)
+    quantile2[i] <- quantile(mf[[i]], probs = 0.975)
+  }
+  int <- cbind(quantile1,quantile2)
+  moments <- interval_to_moments(int)
+  prior <- set_prior(Y = mf, n_lags = 4, n_reps = 1000)
+  prior 
+  prior1 <-  update_prior(prior, n_fcst = (3*horizon))
+  est1 <- estimate_mfbvar(prior1, prior = "minn", variance = "iw")
+  
+  prior2 <- update_prior(prior,d = "intercept",prior_psi_mean = moments$prior_psi_mean,
+                         prior_psi_Omega = moments$prior_psi_Omega)
+  prior2 <-  update_prior(prior2, n_fcst = (3*horizon))
+  est2 <- estimate_mfbvar(prior2, prior = "ss", variance = "iw")
+  est3 <- estimate_mfbvar(prior2, prior = "ssng", variance = "iw")
+  pred_1 <- predict(est1,aggregate_fcst = FALSE, pred_bands = 0.9)
+  pred_2 <- predict(est2,aggregate_fcst = FALSE, pred_bands = 0.9)
+  pred_3 <- predict(est3,aggregate_fcst = FALSE, pred_bands = 0.9)
+  
+  #===========only quarterly for nowcast=======================
+  
+  arr1 <- NULL   
+  for(j in 1:(3*horizon))
+  {
+    m1 <- NULL
+    for(i in 1:k2)
+    {
+      m <- j+(3*horizon*(i-1))
+      m1 <- c(m1,m)  
+      
+    }
+    arr1 <- c(arr1,m1) 
+    arr1
+  }
+  ############# Minn ###############
+pred1=pred_1[-(1:(3*horizon*k1)),]
+pred1 <- as.matrix(pred1[,4:6])
+pred1 <- pred1[arr1,]
+# mean = median(under normality) = pred1[,2]
+sd_minn <- (pred1[,3]-pred1[,2])/2
+mfb_mean_minn <- matrix(pred1[,2],nrow=k2,ncol=(3*horizon),byrow=F)
+mfb_sd_minn <- matrix(sd_minn,nrow=k2,ncol=(3*horizon),byrow=F)
+
+ err_low_1 <- numeric()
+  for ( j in 1:horizon)
+  {
+    set <- c((3*j-2),(3*j-1),(3*j))
+    for(i in set){
+      err_low_1[i] <- sum((true[,j][((3*k1)+1):((3*k1)+k2)]-mfb_mean_minn[,i])^2)/k2
+    }
+  }
+ 
+
+crps_mat_minn <- matrix(0,nrow = k2,ncol=(3*horizon))
+logs_mat_minn <- matrix(0,nrow = k2,ncol=(3*horizon))
+
+for ( j in 1:horizon)
+{
+  set <- c((3*j-2),(3*j-1),(3*j))
+  for(i in set){
+    crps_mat_minn[,i] <- crps(y = true[,j][((3*k1)+1):((3*k1)+k2)], family = "normal", mean = mfb_mean_minn[,i], sd = mfb_sd_minn[,i])
+    logs_mat_minn[,i] <- logs(y = true[,j][((3*k1)+1):((3*k1)+k2)], family = "normal", mean = mfb_mean_minn[,i], sd = mfb_sd_minn[,i])
+    
+  }
+}
+  
+crps_mat_minn
+logs_mat_minn
+
+###################### SS #################################
+pred2 <- pred_2[-(1:(3*horizon*k1)),]
+pred2 <- as.matrix(pred2[,4:6])
+pred2 <- pred2[arr1,]
+# mean = median(under normality) = pred2[,2]
+sd_ss <- (pred2[,3]-pred2[,2])/2
+mfb_mean_ss <- matrix(pred2[,2],nrow=k2,ncol=(3*horizon),byrow=F)
+mfb_sd_ss <- matrix(sd_ss,nrow=k2,ncol=(3*horizon),byrow=F)
+
+ err_low_2 <- numeric()
+  for ( j in 1:horizon)
+  {
+    set <- c((3*j-2),(3*j-1),(3*j))
+    for(i in set){
+      err_low_2[i] <- sum((true[,j][((3*k1)+1):((3*k1)+k2)]-mfb_mean_ss[,i])^2)/k2
+    }
+  }
+ 
+
+
+crps_mat_ss <- matrix(0,nrow = k2,ncol=(3*horizon))
+logs_mat_ss <- matrix(0,nrow = k2,ncol=(3*horizon))
+
+for ( j in 1:horizon)
+{
+  set <- c((3*j-2),(3*j-1),(3*j))
+  for(i in set){
+    crps_mat_ss[,i] <- crps(y = true[,j][((3*k1)+1):((3*k1)+k2)], family = "normal", mean = mfb_mean_ss[,i], sd = mfb_sd_ss[,i])
+    logs_mat_ss[,i] <- logs(y = true[,j][((3*k1)+1):((3*k1)+k2)], family = "normal", mean = mfb_mean_ss[,i], sd = mfb_sd_ss[,i])
+    
+  }
+}
+
+############################# SSNG ################################
+
+pred3 <- pred_3[-(1:(3*horizon*k1)),]
+pred3 <- as.matrix(pred3[,4:6])
+pred3 <- pred3[arr1,]
+# mean = median(under normality) = pred2[,2]
+sd_ssng <- (pred3[,3]-pred3[,2])/2
+mfb_mean_ssng <- matrix(pred3[,2],nrow=k2,ncol=(3*horizon),byrow=F)
+mfb_sd_ssng <- matrix(sd_ssng,nrow=k2,ncol=(3*horizon),byrow=F)
+
+ err_low_3 <- numeric()
+  for ( j in 1:horizon)
+  {
+    set <- c((3*j-2),(3*j-1),(3*j))
+    for(i in set){
+      err_low_3[i] <- sum((true[,j][((3*k1)+1):((3*k1)+k2)]-mfb_mean_ssng[,i])^2)/k2
+    }
+  }
+ 
+
+crps_mat_ssng <- matrix(0,nrow = k2,ncol=(3*horizon))
+logs_mat_ssng <- matrix(0,nrow = k2,ncol=(3*horizon))
+
+for ( j in 1:horizon)
+{
+  set <- c((3*j-2),(3*j-1),(3*j))
+  for(i in set){
+    crps_mat_ssng[,i] <- crps(y = true[,j][((3*k1)+1):((3*k1)+k2)], family = "normal", mean = mfb_mean_ssng[,i], sd = mfb_sd_ssng[,i])
+    logs_mat_ssng[,i] <- logs(y = true[,j][((3*k1)+1):((3*k1)+k2)], family = "normal", mean = mfb_mean_ssng[,i], sd = mfb_sd_ssng[,i])
+    
+  }
+}
+  return(list(pred_1=pred_1[,4:6],pred_2=pred_2[,4:6],pred_3=pred_3[,4:6],crps_minn=crps_mat_minn,logs_minn=logs_mat_minn,
+              crps_ss=crps_mat_ss,logs_ss=logs_mat_ss,crps_ssng=crps_mat_ssng,logs_ssng=logs_mat_ssng,
+              ferr_mfb_low1=err_low_1,ferr_mfb_low2=err_low_2,ferr_mfb_low3=err_low_3))
+}
