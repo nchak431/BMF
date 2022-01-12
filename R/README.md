@@ -17,6 +17,10 @@ Generates VAR transition matrix using function 'Gen_A' and generates true error 
 
 This code first generates data from the proposed BMF model, estimates the model using Gibbs sampling algorithm, provides forecasts and forecast errors and also provides the metrics regarding the model selection and estimation consistency of the BMF model.
 
+**mfbvar.R**
+
+Code for implementing the estimation by R package `mfbvar', using the model by Schorfheide and Song as in the paper 'Real-Time Forecasting With a Mixed-Frequency VAR'.
+
 **prepare_data1.R**
 
 Code to prepapre Data 1 (as mentioned in the paper), the first subset of the real macroeconomic data.
