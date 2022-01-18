@@ -19,7 +19,20 @@ This code first generates data from the proposed BMF model, estimates the model 
 
 **mfbvar.R**
 
-Code for implementing the estimation by R package `mfbvar', using the model by Schorfheide and Song as in the paper 'Real-Time Forecasting With a Mixed-Frequency VAR'.
+Code for implementing the estimation by R package `mfbvar', using the model by Schorfheide and Song as in the paper 'Real-Time Forecasting With a Mixed-Frequency VAR' by Schorfheide and Song.
+
+**midas.R**
+
+Code for fitting MIDAS regression model by R package `midasr', as given in the paper 'Midas regressions: Further results and new
+directions' by Ghysels, Sinko and Valkanov.
+
+**random_walk.R**
+
+Code for fitting the benchmark model used in forecasting : a random walk model with drift.
+
+**quarterly_VAR.R**
+
+Code for fitting a quarterly VAR model which was fitted to the real macroeconomic data used in the paper.
 
 **prepare_data1.R**
 
