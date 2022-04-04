@@ -30,7 +30,7 @@ p1 <- (k1+k2)
 
 A <- Gen_A(k1,k2,rho_h,rho_l)
 
-sigma_true <- Gen1_Sigma (k1,k2,rho_h)
+sigma_true <- Gen_Sigma (k1,k2,rho_h)
 desired_SNR <- 2
 k <- norm(A, type="F")/norm(desired_SNR*sigma_true, type="F")
 sigma_true <- k * sigma_true
@@ -378,9 +378,11 @@ ferr_med[,,r] <- forecast$ferr_med
 ferr_med_low[,,r] <- forecast$ferr_med_low # forecast error for quarterly variables
 
 save(ferr_med_low, file=paste("ferr_med_low_test-", index, ".dat", sep=''))
+save(crps_mat, file=paste("crps_mat_test-", index, ".dat", sep=''))
+save(logs_mat, file=paste("logs_mat_test-", index, ".dat", sep=''))
 
-# Repeat this for 50(or more) replicates and then combine the forecast errors from all the replicates to obtain the final RMSE values.
-
+# Repeat this for 50(or more) replicates and then combine the results from all the replicates to obtain the final values.
+# Final RMSE
 repl=25
 val <- NULL
 for(i in 1:repl){
@@ -390,3 +392,23 @@ for(i in 1:repl){
 }
 final <- apply(val,2,mean)
 RMSE <- sqrt(final)
+# Final CRPS and log-score
+avg_crps <- NULL
+avg_logs <- NULL
+
+for(ind in 1:repl){
+  load(paste("crps_mat_test-", ind, ".dat", sep=''))               
+  load(paste("logs_mat_test-", ind, ".dat", sep=''))              
+  crps <- numeric()
+  logs <- numeric()
+  for ( j in 1:horizon)
+  {
+    crps[j] <- mean(crps_mat[,j][((3*k1)+1):((3*k1)+k2)])
+    logs[j] <- mean(logs_mat[,j][((3*k1)+1):((3*k1)+k2)])
+      } 
+  avg_crps <- rbind(avg_crps,crps)
+  avg_logs <- rbind(avg_logs,logs)
+  
+}
+final_crps <- apply(avg_crps,2,mean)
+final_logs <- apply(avg_logs,2,mean)
