@@ -1,3 +1,4 @@
+#========Generate VAR transition matrix using a neutral setting=======
 Gen_A = function(k1,k2,rho_h,rho_l)
 {
 hh <- matrix(0,nrow=(3*k1),ncol=(2*k1))
@@ -26,7 +27,6 @@ while (eig > 0.81){
 mat
 }
 
-# permutation
 permutation <- function(k1,k2)
 {
 a<- NULL
@@ -114,30 +114,10 @@ vec2 <- c(a,b,d,m2)
 data <- list(vech,vec1,vec2)
 data
 }
-# Generate Cov Matrix
+
 Gen_Sigma = function(k1,k2,rho_h)
-{
-#temp1 <- runif((k1*k1),0.2,0.9)
-temp2 <- runif((k1*k2),0.2,0.9)
-#temp3 <- runif((k2*k2),0.2,0.9)
-hh <- genPositiveDefMat(k1, covMethod=c("eigen", "onion", "c-vine", "unifcorrmat"),  alphad=1, eta=1, rangeVar=c(0.1,0.9), lambdaLow=1, ratioLambda=2)$Sigma
-hl <- matrix(temp2,nrow=k1,ncol=k2)
-ll <- genPositiveDefMat(k2, covMethod=c("eigen", "onion", "c-vine", "unifcorrmat"),  alphad=1, eta=1, rangeVar=c(0.1,0.9), lambdaLow=1, ratioLambda=2)$Sigma
-hl_block <- rbind(hl,(1+rho_h)*hl,(1+rho_h+rho_h^2)*hl)
-row1 <- cbind(hh,rho_h*hh,(rho_h^2)*hh)
-row2 <- cbind(rho_h*hh,(1 + rho_h^2)*hh,(rho_h*(1 + rho_h^2))*hh)
-row3 <- cbind((rho_h^2)*hh,(rho_h*(1 + rho_h^2))*hh,(1 + rho_h^2 + rho_h^4)*hh)
-hh_block <- rbind(row1,row2,row3)
-sigma <- rbind(cbind(hh_block,hl_block),cbind(t(hl_block),ll))
-sigma
-}
-Gen1_Sigma = function(k1,k2,rho_h)
 {
   A <- genPositiveDefMat((3*k1+k2), covMethod=c("eigen", "onion", "c-vine", "unifcorrmat"),  alphad=1, eta=1, rangeVar=c(0.1,0.9), lambdaLow=1, ratioLambda=2)$Sigma
   sigma <- A %*% (t(A))
   sigma
 }
-
-
-
-
