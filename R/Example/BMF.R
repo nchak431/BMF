@@ -376,7 +376,8 @@ forecast <- forecast_cred(pred_sim,forecast_true,horizon)
 forecast_med[,,r] <- forecast$forecast_med
 ferr_med[,,r] <- forecast$ferr_med
 ferr_med_low[,,r] <- forecast$ferr_med_low # forecast error for quarterly variables
-
+                      
+save(y_full, file=paste("y_full_test-", index, ".dat", sep=''))
 save(ferr_med_low, file=paste("ferr_med_low_test-", index, ".dat", sep=''))
 save(crps_mat, file=paste("crps_mat_test-", index, ".dat", sep=''))
 save(logs_mat, file=paste("logs_mat_test-", index, ".dat", sep=''))
