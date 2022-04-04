@@ -1,4 +1,4 @@
-source("mat_gen_BMF.R")
+source("data_gen.R")
 source("functions.R")
 
 library(matrixcalc)
