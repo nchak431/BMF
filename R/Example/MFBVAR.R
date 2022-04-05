@@ -65,6 +65,7 @@ forecast_true_m1 <- y_full[,(nobs + 1 + 1):(nobs + 1 + horizon)]
   crps_ssng[,,r] <- mfb_compare$crps_ssng
   logs_ssng[,,r] <- mfb_compare$logs_ssng
   ferr_mfb_low3[,,r] <- mfb_compare$ferr_mfb_low3 
+index <- 1 # Fix an index no. for each replicate.
 save(crps_minn, file=paste("crps_minn_test-", index, ".dat", sep=''))
 save(logs_minn, file=paste("logs_minn_test-", index, ".dat", sep=''))
 save(crps_ss, file=paste("crps_ss_test-", index, ".dat", sep=''))
@@ -76,7 +77,7 @@ save(ferr_mfb_low1, file=paste("ferr_low_minn_test-", index, ".dat", sep=''))
 save(ferr_mfb_low2, file=paste("ferr_low_ss_test-", index, ".dat", sep=''))
 save(ferr_mfb_low3, file=paste("ferr_low_ssng_test-", index, ".dat", sep=''))
 
-# Repeat this for 50(or more) replicates and then combine the results
+# Repeat this for 50(or more) replicates and then combine the results.
 
 # Final RMSE
 repl <- 50
