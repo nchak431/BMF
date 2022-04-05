@@ -6,7 +6,7 @@ Generates VAR transition matrix using function 'Gen_A' and generates true error 
 
 **BMF.R**
 
-This code first generates data from the model by Ghysels, fit the proposed BMF model to the simulated data and then provides RMSE, CRPS and log-score values.
+This code first generates data from the model by Ghysels using 'data_gen.R' for setting 1 in the paper, fit the proposed BMF model to the simulated data and then provides RMSE, CRPS and log-score values.
 
 **MFBVAR.R**
 
