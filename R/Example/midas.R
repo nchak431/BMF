@@ -8,7 +8,7 @@ library(midasr)
 #==============================input======================================
 k1 <- 3
 k2 <- 30
-nobs <- 101
+nobs <- 100
 horizon <- 20
 #============================================================================
 vec1 <- permutation(k1,k2)[[2]]
@@ -282,6 +282,7 @@ for ( j in 1:horizon)
   err_low_restr_m2[j] <- sum((forecast_true[,j]-forecast_restr_m2[,j])^2)/k2
   err_low_unrestr_m2[j] <- sum((forecast_true[,j]-forecast_unrestr_m2[,j])^2)/k2
 }
+index <- 1 # Fix an index no. for each replicate.
 save(err_low_restr_s1, file=paste("err_low_restr_s1_test-", index, ".dat", sep=''))
 save(err_low_unrestr_s1, file=paste("err_low_unrestr_s1_test-", index, ".dat", sep=''))
 save(err_low_restr_m1, file=paste("err_low_restr_m1_test-", index, ".dat", sep=''))
