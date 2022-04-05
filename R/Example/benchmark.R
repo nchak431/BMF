@@ -36,6 +36,7 @@ for ( j in 1:horizon)
 {
   err[j] <- sum((forecast_true_m1[,j][((3*k1)+1):((3*k1)+k2)]-forecast[,j][((3*k1)+1):((3*k1)+k2)])^2)/k2 #forecast error
 }
+index <- 1 # Fix an index no. for each replicate.
 save(err, file=paste("err_test-", index, ".dat", sep=''))
 
 # Repeat this for 50(or more) replicates and then combine the results.
