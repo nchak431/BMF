@@ -14,13 +14,11 @@ horizon <- 20
 vec1 <- permutation(k1,k2)[[2]]
 
 # Load the data
-y_full <- load("data.dat")
-
+load(paste("y_full_test-", index, ".dat", sep=''))
+y_full <- y_full
 data_mod_full <- y_full[vec1,]
-data <-y_full[,1:(nobs + 1)]
-data_t <- t(data)
-data_mod <-as.matrix(y_mod_full)[,1:(nobs + 1)]
-forecast_true_m1 <- y_full[,(nobs + 1 + 1):(nobs + 1 + horizon)]
+data <- y_full[,1:(nobs + 1)]
+data_mod <- as.matrix(y_mod_full)[,1:(nobs + 1)]
 
 mf_list <- list() 
 for(i in 1:(k1+k2))  
@@ -284,3 +282,48 @@ for ( j in 1:horizon)
   err_low_restr_m2[j] <- sum((forecast_true[,j]-forecast_restr_m2[,j])^2)/k2
   err_low_unrestr_m2[j] <- sum((forecast_true[,j]-forecast_unrestr_m2[,j])^2)/k2
 }
+save(err_low_restr_s1, file=paste("err_low_restr_s1_test-", index, ".dat", sep=''))
+save(err_low_unrestr_s1, file=paste("err_low_unrestr_s1_test-", index, ".dat", sep=''))
+save(err_low_restr_m1, file=paste("err_low_restr_m1_test-", index, ".dat", sep=''))
+save(err_low_unrestr_m1, file=paste("err_low_unrestr_m1_test-", index, ".dat", sep=''))
+save(err_low_restr_m2, file=paste("err_low_restr_m2_test-", index, ".dat", sep=''))
+save(err_low_unrestr_m2, file=paste("err_low_unrestr_m2_test-", index, ".dat", sep=''))
+
+
+# Repeat this for 50(or more) replicates and then combine the results.
+
+repl <- 50
+val_s1_restr <- NULL
+val_s1_unrestr <- NULL
+val_m1_restr <- NULL
+val_m1_unrestr <- NULL
+val_m2_restr <- NULL
+val_m2_unrestr <- NULL
+
+for(i in 1:repl){
+  load(paste("err_low_nls_s1_test-", i, ".dat", sep=''))
+  load(paste("err_low_nls_m1_test-", i, ".dat", sep=''))
+  load(paste("err_low_nls_m2_test-", i, ".dat", sep=''))
+  load(paste("err_low_unrestr_s1_test-", i, ".dat", sep=''))
+  load(paste("err_low_unrestr_m1_test-", i, ".dat", sep=''))
+  load(paste("err_low_unrestr_m2_test-", i, ".dat", sep=''))
+  s1_restr <- err_low_restr_s1
+  m1_restr <- err_low_restr_m1
+  m2_restr <- err_low_restr_m2
+  s1_unrestr <- err_low_unrestr_s1
+  m1_unrestr <- err_low_unrestr_m1
+  m2_unrestr <- err_low_unrestr_m2
+  val_s1_restr <- rbind(val_s1_restr,s1_restr) 
+  val_s1_unrestr <- rbind(val_s1_unrestr,s1_unrestr) 
+  val_m1_restr <- rbind(val_m1_restr,m1_restr) 
+  val_m1_unrestr <- rbind(val_m1_unrestr,m1_unrestr) 
+  val_m2_restr <- rbind(val_m2_restr,m2_restr) 
+  val_m2_unrestr <- rbind(val_m2_unrestr,m2_unrestr) 
+}
+
+RMSE_s1_restr <- sqrt(apply(val_s1_restr,2,mean))
+RMSE_s1_unrestr <- sqrt(apply(val_s1_unrestr,2,mean))
+RMSE_m1_restr <- sqrt(apply(val_m1_restr,2,mean))
+RMSE_m1_unrestr <- sqrt(apply(val_m1_unrestr,2,mean))
+RMSE_m2_restr <- sqrt(apply(val_m2_restr,2,mean))
+RMSE_m2_unrestr <- sqrt(apply(val_m2_unrestr,2,mean))
