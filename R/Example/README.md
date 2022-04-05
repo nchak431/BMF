@@ -19,3 +19,7 @@ Code for fitting MIDAS regression model by R package `midasr', as given in the p
 benchmark.R
 
 Code for fitting the benchmark model (a random walk model with drift) used in forecasting for obtaining the relative RMSE values.
+
+functions.R
+
+Contains all the R functions required to fit the proposed BMF model as well as other competing models.
