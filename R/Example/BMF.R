@@ -376,6 +376,7 @@ forecast <- forecast_cred(pred_sim,forecast_true,horizon)
 forecast_med[,,r] <- forecast$forecast_med
 ferr_med[,,r] <- forecast$ferr_med
 ferr_med_low[,,r] <- forecast$ferr_med_low # forecast error for quarterly variables
+# This gives forecast errors for h=1,2,.. etc. For nowcasting, group the monthly variables in 'y' appropriately and fit the model to this new 'y'.                       
 index <- 1 # Fix an index no. for each replicate.                      
 save(y_full, file=paste("y_full_test-", index, ".dat", sep=''))
 save(ferr_med_low, file=paste("ferr_med_low_test-", index, ".dat", sep=''))
